@@ -1,27 +1,44 @@
 import "./Navigation.css";
 import { Home, Trophy, Settings } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
-function Navigation() { return ( 
+function Navigation() {
+  return (
+    <nav className="bottom-nav" aria-label="Hauptnavigation">
 
-<nav className="bottom-nav" aria-label="Hauptnavigation"> 
-    
-  <a className="bottom-nav__item bottom-nav__item--active" href="#home" aria-current="page" > 
-    <Home size={23} strokeWidth={2} />
-    <span>Home</span> 
-  </a>
+      <NavLink
+        to="/"
+        end
+        className={({ isActive }) =>
+          `bottom-nav__item ${isActive ? "bottom-nav__item--active" : ""}`
+        }
+      >
+        <Home size={23} strokeWidth={2} />
+        <span>ToDos</span>
+      </NavLink>
 
-  <a className="bottom-nav__item" href="#aufgaben">
-    <Trophy size={23} strokeWidth={2} />
-    <span>Aufgaben</span>
-  </a>
+      <NavLink
+        to="/rangliste"
+        className={({ isActive }) =>
+          `bottom-nav__item ${isActive ? "bottom-nav__item--active" : ""}`
+        }
+      >
+        <Trophy size={23} strokeWidth={2} />
+        <span>Rangliste</span>
+      </NavLink>
 
-  <a className="bottom-nav__item" href="#profil">
-    <Settings size={23} strokeWidth={2} />
-    <span>Profil</span>
-  </a>
-</nav>
+      <NavLink
+        to="/einstellungen"
+        className={({ isActive }) =>
+          `bottom-nav__item ${isActive ? "bottom-nav__item--active" : ""}`
+        }
+      >
+        <Settings size={23} strokeWidth={2} />
+        <span>Einstellungen</span>
+      </NavLink>
 
-
-); }
+    </nav>
+  );
+}
 
 export default Navigation;
