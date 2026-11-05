@@ -1,5 +1,6 @@
 import "./Home.css";
 import TodoItem from "../../components/TodoItem/TodoItem";
+import Seitenkopf from "../../components/Seitenkopf/Seitenkopf";
 
 function Home({ todos, categories, onToggle, onDelete, onAdd }) {
 
@@ -26,11 +27,11 @@ function Home({ todos, categories, onToggle, onDelete, onAdd }) {
   }).format(today);
 
   return (
-    <>
-      <header className="welcome">
-        <p className="date">{weekday}, {date}</p>
-        <h1>Hallo, Justin</h1>
-      </header>
+    <div>
+      <Seitenkopf
+        date={`${weekday}, ${date}`}
+        header="Hallo, Justin"
+      />
 
       <section className="progress-card">
 
@@ -105,7 +106,7 @@ function Home({ todos, categories, onToggle, onDelete, onAdd }) {
         </div>
 
       </section>
-    </>
+    </div>
   );
 }
 

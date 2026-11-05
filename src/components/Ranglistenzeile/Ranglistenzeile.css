@@ -1,0 +1,40 @@
+.member-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;  
+  font-size: 20px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.member-category {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #808080;
+}
+
+.member-category-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  flex: 0 0 32px;
+}
+
+.member-rank {
+  color: #A6A09B;
+  font-size: 16px;
+}
+
+.member-points {
+  text-align: right;
+}
+
+.member-points {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #000000;
+}

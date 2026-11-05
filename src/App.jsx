@@ -93,13 +93,7 @@ function App() {
           <Route
             path="/rangliste"
             element={
-              <Rangliste
-                todos={todos}
-                categories={categories}
-                onToggle={toggleTodo}
-                onDelete={deleteTodo}
-                onAdd={addTodo}
-              />
+              <Rangliste categories={categories}/>
             }
           />
 
