@@ -16,6 +16,8 @@ const initialCategories = [
 function App() {
   const [todos, setTodos] = useState([]);
   const [categories] = useState(initialCategories);
+  const [displayName, setDisplayName] = useState("Justin");
+  const [hasGroup] = useState(false);
 
   function toggleTodo(id) {
     setTodos((currentTodos) =>
@@ -81,6 +83,7 @@ function App() {
             path="/"
             element={
               <Home
+                displayName={displayName}
                 todos={todos}
                 categories={categories}
                 onToggle={toggleTodo}
@@ -93,13 +96,22 @@ function App() {
           <Route
             path="/rangliste"
             element={
-              <Rangliste categories={categories}/>
+              <Rangliste
+                categories={categories}
+                displayName={displayName}
+              />
             }
           />
 
           <Route
             path="/einstellungen"
-            element={<Einstellungen />}
+            element={
+              <Einstellungen
+                displayName={displayName}
+                onDisplayNameChange={setDisplayName}
+                hasGroup={hasGroup}
+              />
+            }
           />
         </Routes>
       </main>

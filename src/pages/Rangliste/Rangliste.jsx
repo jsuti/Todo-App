@@ -3,13 +3,14 @@ import { UsersRound } from "lucide-react";
 import RanglistenZeile from "../../components/Ranglistenzeile/Ranglistenzeile";
 import Seitenkopf from "../../components/Seitenkopf/Seitenkopf";
 
-const members = [
-  { id: 1, name: "Alex", points: 1250, bestCategoryId: 2 },
-  { id: 2, name: "Sam", points: 980, bestCategoryId: 4 },
-  { id: 3, name: "Jamie", points: 760, bestCategoryId: 3 },
-];
-
-function Rangliste({ categories }) {
+function Rangliste({ categories, displayName }) {
+  const members = [
+    { id: 1, name: "Leonie", points: 1250, bestCategoryId: 2, isCurrentUser: false },
+    { id: 2, name: displayName, points: 980, bestCategoryId: 4, isCurrentUser: true },
+    { id: 3, name: "Jonas", points: 760, bestCategoryId: 3, isCurrentUser: false },
+    { id: 4, name: "Aylin", points: 660, bestCategoryId: 1, isCurrentUser: false },
+  ];
+  
   const rankedMembers = [...members].sort(
     (a, b) => b.points - a.points
   );

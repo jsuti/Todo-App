@@ -1,0 +1,129 @@
+.settings {
+  width: min(100% - 32px, 640px);
+  margin: 0 auto;
+  padding: 32px 0;
+}
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e1e5eb;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgb(30 41 59 / 6%);
+}
+
+.settings-card__label {
+  align-self: flex-start;
+  text-align: left;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.settings-card__input-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.settings-card__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #e1e5eb;
+  border-radius: 10px;
+  color: #202124;
+  background-color: #FAFAF9;
+  font: inherit;
+  outline: none;
+}
+
+.settings-card__save {
+  flex: 0 0 auto;
+  width: 100px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-card__save--saved {
+  font-size: 20px;
+  color: #000000;
+  background: #BBF451;
+}
+
+.settings-card__input:focus {
+  border-color: #333;
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 10%);
+}
+
+.settings-options {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.settings-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: 16px;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgb(30 41 59 / 6%);
+}
+
+.settings-option__icon {
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 13px;
+}
+
+.settings-option__icon--green {
+  background: #D8F999;
+  color: #000000;
+}
+
+.settings-option__icon--purple {
+  background: #EDE9FE;
+  color: #7F22FE;
+}
+
+.settings-option__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-option__title {
+  color: #202124;
+  font-size: 16px;
+  font-weight: 550;
+}
+
+.settings-option__description {
+  color: #7b8491;
+  font-size: 13px;
+}
+
+.settings-option__arrow {
+  flex: 0 0 auto;
+  color: #9aa1aa;
+}

@@ -21,11 +21,14 @@ function RanglistenZeile({ member, rank, categories }) {
   const CategoryIcon = categoryIcons[member.bestCategoryId];
 
   return (
-    <tr>
+    <tr className={member.isCurrentUser ? "leaderboard__row--current-user" : ""}>
       <td>
         <div className="member-name">
           <span className="member-rank">{rank}</span>
-          <span>{member.name}</span>
+          <span>
+            {member.name}
+            {member.isCurrentUser && <span> (Du)</span>}
+          </span>
         </div>
       </td>
 

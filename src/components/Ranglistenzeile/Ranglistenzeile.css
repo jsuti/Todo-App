@@ -7,6 +7,10 @@
   color: #000000;
 }
 
+.leaderboard__row--current-user {
+  background-color: #F7FEE7;
+}
+
 .member-category {
   display: flex;
   align-items: center;

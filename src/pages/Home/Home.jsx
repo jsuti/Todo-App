@@ -2,7 +2,7 @@ import "./Home.css";
 import TodoItem from "../../components/TodoItem/TodoItem";
 import Seitenkopf from "../../components/Seitenkopf/Seitenkopf";
 
-function Home({ todos, categories, onToggle, onDelete, onAdd }) {
+function Home({ displayName, todos, categories, onToggle, onDelete, onAdd }) {
 
   const completedTodos = todos.filter(
     (todo) => todo.completed
@@ -30,7 +30,7 @@ function Home({ todos, categories, onToggle, onDelete, onAdd }) {
     <div>
       <Seitenkopf
         date={`${weekday}, ${date}`}
-        header="Hallo, Justin"
+        header={`Hallo, ${displayName}`}
       />
 
       <section className="progress-card">
