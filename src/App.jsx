@@ -5,6 +5,7 @@ import Home from "./pages/Home/Home";
 import Rangliste from "./pages/Rangliste/Rangliste";
 import Einstellungen from "./pages/Einstellungen/Einstellungen";
 import Navigation from "./components/Navigation/Navigation";
+import NeuesTodoFormular from "./forms/NeuesTodoFormular/NeuesTodoFormular";
 
 const initialCategories = [
   { id: 1, name: "Arbeit", color: "#EDE9FE", textColor: "#6D28D9" },
@@ -18,6 +19,7 @@ function App() {
   const [categories] = useState(initialCategories);
   const [displayName, setDisplayName] = useState("Justin");
   const [hasGroup] = useState(false);
+  const [isTodoFormOpen, setIsTodoFormOpen] = useState(false);
 
   function toggleTodo(id) {
     setTodos((currentTodos) =>
@@ -29,43 +31,18 @@ function App() {
     );
   }
 
-  function addTodo() {
-    const title = window.prompt("Wie heißt deine neue Aufgabe?");
-
-    if (!title?.trim()) return;
-
-    const categoryOptions = categories
-      .map((category) => `${category.id}: ${category.name}`)
-      .join("\n");
-
-    const selectedCategory = window.prompt(
-      `Zu welcher Kategorie gehört die Aufgabe?\n\n${categoryOptions}`
-    );
-
-    let categoryId = null;
-
-    if (selectedCategory?.trim()) {
-      categoryId = Number(selectedCategory);
-
-      const categoryExists = categories.some(
-        (category) => category.id === categoryId
-      );
-
-      if (!categoryExists) {
-        window.alert("Diese Kategorie existiert nicht.");
-        return;
-      }
-    }
-
+  function addTodo({ title, categoryId }) {
     setTodos((currentTodos) => [
       ...currentTodos,
       {
         id: Date.now(),
-        title: title.trim(),
+        title,
         categoryId,
         completed: false,
       },
     ]);
+
+    setIsTodoFormOpen(false);
   }
 
   function deleteTodo(id) {
@@ -88,7 +65,7 @@ function App() {
                 categories={categories}
                 onToggle={toggleTodo}
                 onDelete={deleteTodo}
-                onAdd={addTodo}
+                onAdd={() => setIsTodoFormOpen(true)}
               />
             }
           />
@@ -110,6 +87,7 @@ function App() {
                 displayName={displayName}
                 onDisplayNameChange={setDisplayName}
                 hasGroup={hasGroup}
+                onAdd={() => setIsTodoFormOpen(true)}
               />
             }
           />
@@ -117,6 +95,14 @@ function App() {
       </main>
 
       <Navigation />
+
+      {isTodoFormOpen && (
+        <NeuesTodoFormular
+          categories={categories}
+          onSubmit={addTodo}
+          onClose={() => setIsTodoFormOpen(false)}
+        />
+      )}
 
     </div>
   );

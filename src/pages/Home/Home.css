@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 .app {
   width: 100%;
   max-width: 720px;
@@ -137,4 +143,22 @@
   color: #777777;
   text-align: center;
   font-size: 14px;
+}
+
+/* zwei ToDos in einer Zeile in Desktop-Ansicht */
+
+@media (min-width: 900px) {
+  .app {
+    max-width: 1100px;
+  }
+
+  .todo-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+  }
 }

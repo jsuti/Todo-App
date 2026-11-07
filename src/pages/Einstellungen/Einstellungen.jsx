@@ -7,6 +7,7 @@ function Einstellungen({
   hasGroup,
   displayName,
   onDisplayNameChange,
+  onAdd,
 }) {
   const [editedName, setEditedName] = useState(displayName);
   const [saved, setSaved] = useState(false);
@@ -55,7 +56,11 @@ function Einstellungen({
       </section>
 
       <div className="settings-options">
-        <button className="settings-option" type="button">
+        <button
+          className="settings-option"
+          type="button"
+          onClick={onAdd}
+        >
           <span className="settings-option__icon settings-option__icon--green">
             <Plus size={22} aria-hidden="true" />
           </span>

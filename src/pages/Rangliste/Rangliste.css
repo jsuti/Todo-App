@@ -66,12 +66,17 @@
   border-radius: 15px;
 
   background: #ffffff;
+
+  min-width: 0;
+  overflow: hidden;
 }
 
 .leaderboard__table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+
+  table-layout: fixed;
 }
 
 .leaderboard__table th,
