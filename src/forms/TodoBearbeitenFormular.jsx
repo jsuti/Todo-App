@@ -1,15 +1,16 @@
-import "./NeuesTodoFormular.css";
-import Seitenkopf from "../../components/Seitenkopf/Seitenkopf";
-import FormularEingabe from "../../components/FormularEingabe/FormularEingabe";
-import KategorienAuswahl from "../../components/KategorienAuswahl/KategorienAuswahl";
+import "./TodoFormular.css";
+import Seitenkopf from "../components/Seitenkopf/Seitenkopf";
+import FormularEingabe from "../components/FormularEingabe/FormularEingabe";
+import KategorienAuswahl from "../components/KategorienAuswahl/KategorienAuswahl";
 
-function NeuesTodoFormular({ onSubmit, onClose, categories }) {
+function TodoBearbeitenFormular({ todo, onSubmit, onClose, categories }) {
   function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
 
     onSubmit({
+      id: todo.id,
       title: formData.get("title").trim(),
       categoryId: Number(formData.get("categoryId")) || null,
     });
@@ -27,7 +28,7 @@ function NeuesTodoFormular({ onSubmit, onClose, categories }) {
       >
         <Seitenkopf
           eyebrowText="Was gibt es zu tun?"
-          header="ToDo hinzufügen"
+          header="ToDo bearbeiten"
         />
 
         <form onSubmit={handleSubmit}>
@@ -35,9 +36,13 @@ function NeuesTodoFormular({ onSubmit, onClose, categories }) {
             label="Name des Eintrags"
             name="title"
             placeholder="Namen eingeben"
+            defaultValue={todo.title}
           />
 
-          <KategorienAuswahl categories={categories} />
+          <KategorienAuswahl
+            categories={categories}
+            selectedCategoryId={todo.categoryId}
+          />
 
           <div className="todo-form__actions">
             <button type="button" onClick={onClose}>Abbrechen</button>
@@ -49,4 +54,4 @@ function NeuesTodoFormular({ onSubmit, onClose, categories }) {
   );
 }
 
-export default NeuesTodoFormular;
+export default TodoBearbeitenFormular;

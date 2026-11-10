@@ -5,7 +5,8 @@ import Home from "./pages/Home/Home";
 import Rangliste from "./pages/Rangliste/Rangliste";
 import Einstellungen from "./pages/Einstellungen/Einstellungen";
 import Navigation from "./components/Navigation/Navigation";
-import NeuesTodoFormular from "./forms/NeuesTodoFormular/NeuesTodoFormular";
+import NeuesTodoFormular from "./forms/NeuesTodoFormular";
+import TodoBearbeitenFormular from "./forms/TodoBearbeitenFormular";
 
 const initialCategories = [
   { id: 1, name: "Arbeit", color: "#EDE9FE", textColor: "#6D28D9" },
@@ -43,6 +44,7 @@ function App() {
   const displayName = currentUser?.name ?? "";
   const currentGroup = groups.find((group) => group.id === currentGroupId);
   const [isTodoFormOpen, setIsTodoFormOpen] = useState(false);
+  const [editingTodo, setEditingTodo] = useState(null);
 
   function toggleTodo(id) {
     setTodos((currentTodos) =>
@@ -66,6 +68,18 @@ function App() {
     ]);
 
     setIsTodoFormOpen(false);
+  }
+
+  function updateTodo(updatedTodo) {
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === updatedTodo.id
+          ? { ...todo, ...updatedTodo }
+          : todo
+      )
+    );
+
+    setEditingTodo(null);
   }
 
   function deleteTodo(id) {
@@ -142,6 +156,7 @@ function App() {
                 onToggle={toggleTodo}
                 onDelete={deleteTodo}
                 onAdd={() => setIsTodoFormOpen(true)}
+                onEdit={setEditingTodo}
               />
             }
           />
@@ -179,6 +194,15 @@ function App() {
           categories={categories}
           onSubmit={addTodo}
           onClose={() => setIsTodoFormOpen(false)}
+        />
+      )}
+
+      {editingTodo && (
+        <TodoBearbeitenFormular
+          todo={editingTodo}
+          categories={categories}
+          onSubmit={updateTodo}
+          onClose={() => setEditingTodo(null)}
         />
       )}
 

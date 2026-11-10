@@ -6,6 +6,7 @@ function TodoItem({
   category,
   onToggle,
   onDelete,
+  onEdit,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -73,6 +74,16 @@ function TodoItem({
             {todo.completed
               ? "Als offen markieren"
               : "Als erledigt markieren"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              onEdit(todo);
+              setMenuOpen(false);
+            }}
+          >
+            Aufgabe bearbeiten
           </button>
 
           <button

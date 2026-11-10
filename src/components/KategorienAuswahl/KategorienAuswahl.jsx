@@ -1,7 +1,7 @@
 import "./KategorienAuswahl.css";
 import { categoryIcons } from "../../constants/categoryIcons";
 
-function KategorienAuswahl({ categories }) {
+function KategorienAuswahl({ categories, selectedCategoryId = categories[0]?.id }) {
   return (
     <section className="category-card">
       <fieldset className="category-fieldset">
@@ -18,7 +18,7 @@ function KategorienAuswahl({ categories }) {
                   type="radio"
                   name="categoryId"
                   value={category.id}
-                  defaultChecked={index === 0}
+                  defaultChecked={category.id === selectedCategoryId}
                   required
                 />
 
