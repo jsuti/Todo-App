@@ -1,18 +1,11 @@
 import "./KategorienAuswahl.css";
-import { Sparkles, Flame, Leaf, BookOpen } from "lucide-react";
-
-const categoryIcons = {
-  1: Sparkles,
-  2: Flame,
-  3: Leaf,
-  4: BookOpen,
-};
+import { categoryIcons } from "../../constants/categoryIcons";
 
 function KategorienAuswahl({ categories }) {
   return (
-    <section className="settings-card settings-card--categories">
-      <fieldset className="form-card__fieldset">
-        <legend className="settings-card__label">Kategorie</legend>
+    <section className="category-card">
+      <fieldset className="category-fieldset">
+        <legend className="category-fieldset__legend">Kategorie auswählen</legend>
 
         <div className="category-choices">
           {categories.map((category, index) => {

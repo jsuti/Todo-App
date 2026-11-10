@@ -14,11 +14,34 @@ const initialCategories = [
   { id: 4, name: "Lernen", color: "#DFF2FE", textColor: "#0369A1" },
 ];
 
+const initialUsers = [
+  { id: "current-user", name: "Justin", points: 980, bestCategoryId: 4 },
+  { id: "user-1", name: "Leonie", points: 1250, bestCategoryId: 2 },
+  { id: "user-2", name: "Jonas", points: 760, bestCategoryId: 3 },
+  { id: "user-3", name: "Aylin", points: 660, bestCategoryId: 1 },
+];
+
+const initialGroups = [
+  {
+    id: "dummy-group",
+    name: "Fokus-Freunde",
+    memberIds: ["user-1", "current-user", "user-2", "user-3"],
+  },
+];
+
 function App() {
   const [todos, setTodos] = useState([]);
   const [categories] = useState(initialCategories);
-  const [displayName, setDisplayName] = useState("Justin");
-  const [hasGroup] = useState(false);
+  const [users, setUsers] = useState(initialUsers);
+  const [groups, setGroups] = useState(initialGroups);
+  const [currentUserId] = useState("current-user");
+
+  /* hier default zu null, um App-Ansicht ohne Gruppe zu sehen*/
+  const [currentGroupId, setCurrentGroupId] = useState("dummy-group");
+
+  const currentUser = users.find((user) => user.id === currentUserId);
+  const displayName = currentUser?.name ?? "";
+  const currentGroup = groups.find((group) => group.id === currentGroupId);
   const [isTodoFormOpen, setIsTodoFormOpen] = useState(false);
 
   function toggleTodo(id) {
@@ -51,6 +74,59 @@ function App() {
     );
   }
 
+  function updateDisplayName(name) {
+    setUsers((currentUsers) =>
+      currentUsers.map((user) =>
+        user.id === currentUserId ? { ...user, name } : user
+      )
+    );
+  }
+
+  function joinGroup(groupId) {
+    setGroups((currentGroups) =>
+      currentGroups.map((group) =>
+        group.id === groupId
+          ? {
+              ...group,
+              memberIds: group.memberIds.includes(currentUserId)
+                ? group.memberIds
+                : [...group.memberIds, currentUserId],
+            }
+          : group
+      )
+    );
+
+    setCurrentGroupId(groupId);
+  }
+
+  function createGroup(name) {
+    const newGroup = {
+      id: crypto.randomUUID(),
+      name: name.trim(),
+      memberIds: [currentUserId],
+    };
+
+    setGroups((currentGroups) => [...currentGroups, newGroup]);
+    setCurrentGroupId(newGroup.id);
+  }
+
+  function leaveGroup() {
+    if (!currentGroupId) return;
+
+    setGroups((currentGroups) =>
+      currentGroups.map((group) =>
+        group.id === currentGroupId
+          ? {
+              ...group,
+              memberIds: group.memberIds.filter((id) => id !== currentUserId),
+            }
+          : group
+      )
+    );
+
+    setCurrentGroupId(null);
+  }
+
   return (
     <div className="app">
 
@@ -75,7 +151,9 @@ function App() {
             element={
               <Rangliste
                 categories={categories}
-                displayName={displayName}
+                currentGroup={currentGroup}
+                users={users}
+                currentUserId={currentUserId}
               />
             }
           />
@@ -84,10 +162,10 @@ function App() {
             path="/einstellungen"
             element={
               <Einstellungen
-                displayName={displayName}
-                onDisplayNameChange={setDisplayName}
-                hasGroup={hasGroup}
-                onAdd={() => setIsTodoFormOpen(true)}
+                hasGroup={Boolean(currentGroup)}
+                onJoinGroup={() => joinGroup("dummy-group")}
+                onCreateGroup={createGroup}
+                onLeaveGroup={leaveGroup}
               />
             }
           />

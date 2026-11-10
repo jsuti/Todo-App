@@ -18,65 +18,38 @@
   background: #fff;
 }
 
-.form-card__fieldset {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
+/* vertikales Layout für die Abstände zwischen Komponenten */
 
-.form-card__label {
-  display: block;
-  margin-bottom: 10px;
-  color: #000;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.category-choices {
-  display: grid;
-  gap: 8px;
-}
-
-.category-choice {
+.todo-form form {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-}
-
-.category-choice__input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
-.category-choice__check {
-  display: grid;
-  width: 22px;
-  height: 22px;
-  flex: 0 0 22px;
-  place-items: center;
-  border: 1.5px solid #9aa1aa;
-  border-radius: 50%;
-  color: transparent;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.category-choice__input:checked + .category-choice__check {
-  border-color: #111;
-  color: #111;
-}
-
-.category-choice__input:focus-visible + .category-choice__check {
-  outline: 3px solid rgb(0 0 0 / 15%);
-  outline-offset: 2px;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .todo-form__actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.todo-form__actions button {
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.todo-form__actions button:hover {
+  background: #333;
+}
+
+.todo-form__actions button:focus-visible {
+  outline: 3px solid rgb(0 0 0 / 20%);
+  outline-offset: 2px;
 }

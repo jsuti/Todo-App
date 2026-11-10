@@ -1,17 +1,5 @@
-import {
-  Sparkles,
-  Flame,
-  Leaf,
-  BookOpen,
-} from "lucide-react";
-import "./Ranglistenzeile.css"; 
-
-const categoryIcons = {
-  1: Sparkles,
-  2: Flame,
-  3: Leaf,
-  4: BookOpen,
-};
+import "./Ranglistenzeile.css";
+import { categoryIcons } from "../../constants/categoryIcons";
 
 function RanglistenZeile({ member, rank, categories }) {
   const category = categories.find(
