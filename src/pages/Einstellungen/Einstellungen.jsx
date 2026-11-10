@@ -5,6 +5,7 @@ import Seitenkopf from "../../components/Seitenkopf/Seitenkopf";
 
 function Einstellungen({
   hasGroup,
+  onLeaveGroup,
   displayName,
   onDisplayNameChange,
   onAdd,
@@ -80,7 +81,19 @@ function Einstellungen({
         </button>
 
         {hasGroup ? (
-          <button className="settings-option" type="button">
+          <button
+            className="settings-option"
+            type="button"
+            onClick={() => {
+              const confirmed = window.confirm(
+                "Möchtest du diese Gruppe wirklich verlassen?"
+              );
+
+              if (confirmed) {
+                onLeaveGroup();
+              }
+            }}
+          >
             <span className="settings-option__icon settings-option__icon--purple">
               <UsersRound size={22} aria-hidden="true" />
             </span>

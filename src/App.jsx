@@ -32,7 +32,7 @@ const initialGroups = [
 
 function App() {
   const [todos, setTodos] = useState([]);
-  const [categories] = useState(initialCategories);
+  const categories = initialCategories;
   const [users, setUsers] = useState(initialUsers);
   const [groups, setGroups] = useState(initialGroups);
   const [currentUserId] = useState("current-user");
@@ -177,10 +177,13 @@ function App() {
             path="/einstellungen"
             element={
               <Einstellungen
+                displayName={displayName}
+                onDisplayNameChange={updateDisplayName}
                 hasGroup={Boolean(currentGroup)}
+                onAdd={() => setIsTodoFormOpen(true)}
+                onLeaveGroup={leaveGroup}
                 onJoinGroup={() => joinGroup("dummy-group")}
                 onCreateGroup={createGroup}
-                onLeaveGroup={leaveGroup}
               />
             }
           />
