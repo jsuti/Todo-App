@@ -40,8 +40,8 @@ function NeuesTodoFormular({ onSubmit, onClose, categories }) {
           <KategorienAuswahl categories={categories} />
 
           <div className="todo-form__actions">
-            <button type="button" onClick={onClose}>Abbrechen</button>
-            <button type="submit">Erstellen</button>
+            <button type="button" onClick={onClose}>Zurück</button>
+            <button type="submit">Übernehmen</button>
           </div>
         </form>
       </section>

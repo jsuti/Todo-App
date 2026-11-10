@@ -7,6 +7,8 @@ import Einstellungen from "./pages/Einstellungen/Einstellungen";
 import Navigation from "./components/Navigation/Navigation";
 import NeuesTodoFormular from "./forms/NeuesTodoFormular";
 import TodoBearbeitenFormular from "./forms/TodoBearbeitenFormular";
+import GruppeBeitretenFormular from "./forms/GruppeBeitretenFormular";
+import GruppeErstellenFormular from "./forms/GruppeErstellenFormular";
 
 const initialCategories = [
   { id: 1, name: "Arbeit", color: "#EDE9FE", textColor: "#6D28D9" },
@@ -45,6 +47,8 @@ function App() {
   const currentGroup = groups.find((group) => group.id === currentGroupId);
   const [isTodoFormOpen, setIsTodoFormOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState(null);
+  const [isJoinGroupFormOpen, setIsJoinGroupFormOpen] = useState(false);
+  const [isCreateGroupFormOpen, setIsCreateGroupFormOpen] = useState(false);
 
   function toggleTodo(id) {
     setTodos((currentTodos) =>
@@ -182,8 +186,8 @@ function App() {
                 hasGroup={Boolean(currentGroup)}
                 onAdd={() => setIsTodoFormOpen(true)}
                 onLeaveGroup={leaveGroup}
-                onJoinGroup={() => joinGroup("dummy-group")}
-                onCreateGroup={createGroup}
+                onJoinGroup={() => setIsJoinGroupFormOpen(true)}
+                onCreateGroup={() => setIsCreateGroupFormOpen(true)}
               />
             }
           />
@@ -200,12 +204,33 @@ function App() {
         />
       )}
 
+      {/* Alle Formulare im Vorhinein rendern */}
+
       {editingTodo && (
         <TodoBearbeitenFormular
           todo={editingTodo}
           categories={categories}
           onSubmit={updateTodo}
           onClose={() => setEditingTodo(null)}
+        />
+      )}
+
+      {isJoinGroupFormOpen && (
+        <GruppeBeitretenFormular
+          groups={groups.filter((group) => group.id !== currentGroupId)}
+          onSubmit={(groupId) => {
+            joinGroup(groupId);
+            setIsJoinGroupFormOpen(false);
+          }}
+          onClose={() => setIsJoinGroupFormOpen(false)}
+        />
+      )}
+
+      {isCreateGroupFormOpen && (
+        <GruppeErstellenFormular
+          groups={groups}
+          onSubmit={createGroup}
+          onClose={() => setIsCreateGroupFormOpen(false)}
         />
       )}
 

@@ -1,6 +1,6 @@
 import "./FormularEingabe.css";
 
-function FormularEingabe({ label, name, id = name, placeholder = "", defaultValue = "" }) {
+function FormularEingabe({ label, name, id = name, placeholder = "", defaultValue = "", onChange }) {
   return (
     <section className="form-card">
       <label className="form-card__label" htmlFor={id}>
@@ -14,6 +14,7 @@ function FormularEingabe({ label, name, id = name, placeholder = "", defaultValu
         type="text"
         placeholder={placeholder}
         defaultValue={defaultValue}
+        onChange={onChange}
         required
       />
     </section>

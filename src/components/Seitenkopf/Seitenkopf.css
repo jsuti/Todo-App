@@ -3,13 +3,21 @@
   text-align: left;
 }
 
-.date {
+.header .date {
   margin: 0 0 8px;
   color: #929292;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
-  text-transform: uppercase;
   letter-spacing: 1.2px;
+  text-transform: none;
+}
+
+.header .eyebrow {
+  color: #929292;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: none;
 }
 
 .header h1 {
@@ -17,13 +25,4 @@
   font-size: clamp(30px, 5vw, 40px);
   font-weight: 700;
   letter-spacing: -1.5px;
-}
-
-/* Allgemeine kleine Überschriften */
-
-.eyebrow {
-  color: #929292;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 1.2px;
 }

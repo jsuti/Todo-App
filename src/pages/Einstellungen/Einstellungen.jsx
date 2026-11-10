@@ -6,6 +6,8 @@ import Seitenkopf from "../../components/Seitenkopf/Seitenkopf";
 function Einstellungen({
   hasGroup,
   onLeaveGroup,
+  onJoinGroup,
+  onCreateGroup,
   displayName,
   onDisplayNameChange,
   onAdd,
@@ -113,7 +115,11 @@ function Einstellungen({
           </button>
         ) : (
           <>
-            <button className="settings-option" type="button">
+            <button
+              className="settings-option"
+              type="button"
+              onClick={onJoinGroup}
+            >
               <span className="settings-option__icon settings-option__icon--purple">
                 <UsersRound size={22} aria-hidden="true" />
               </span>
@@ -132,7 +138,11 @@ function Einstellungen({
               />
             </button>
 
-            <button className="settings-option" type="button">
+            <button
+              className="settings-option"
+              type="button"
+              onClick={onCreateGroup}
+            >
               <span className="settings-option__icon settings-option__icon--purple">
                 <Plus size={22} aria-hidden="true" />
               </span>
