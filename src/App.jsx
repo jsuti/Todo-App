@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import Home from "./pages/Home/Home";
 import Rangliste from "./pages/Rangliste/Rangliste";
@@ -9,6 +10,8 @@ import NeuesTodoFormular from "./forms/NeuesTodoFormular";
 import TodoBearbeitenFormular from "./forms/TodoBearbeitenFormular";
 import GruppeBeitretenFormular from "./forms/GruppeBeitretenFormular";
 import GruppeErstellenFormular from "./forms/GruppeErstellenFormular";
+import AnmeldungFormular from "./forms/AnmeldungFormular";
+import RegistrierungFormular from "./forms/RegistrierungFormular";
 
 const initialCategories = [
   { id: 1, name: "Arbeit", color: "#EDE9FE", textColor: "#6D28D9" },
@@ -18,7 +21,7 @@ const initialCategories = [
 ];
 
 const initialUsers = [
-  { id: "current-user", name: "Justin", points: 980, bestCategoryId: 4 },
+  { id: "current-user", email: "justin@example.de", password: "password", name: "Justin", points: 980, bestCategoryId: 4 },
   { id: "user-1", name: "Leonie", points: 1250, bestCategoryId: 2 },
   { id: "user-2", name: "Jonas", points: 760, bestCategoryId: 3 },
   { id: "user-3", name: "Aylin", points: 660, bestCategoryId: 1 },
@@ -37,18 +40,19 @@ function App() {
   const categories = initialCategories;
   const [users, setUsers] = useState(initialUsers);
   const [groups, setGroups] = useState(initialGroups);
-  const [currentUserId] = useState("current-user");
-
-  /* hier default zu null, um App-Ansicht ohne Gruppe zu sehen*/
-  const [currentGroupId, setCurrentGroupId] = useState("dummy-group");
-
+  const [currentUserId, setCurrentUserId] = useState(null);
   const currentUser = users.find((user) => user.id === currentUserId);
+  const [currentGroupId, setCurrentGroupId] = useState(null);
   const displayName = currentUser?.name ?? "";
   const currentGroup = groups.find((group) => group.id === currentGroupId);
   const [isTodoFormOpen, setIsTodoFormOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState(null);
   const [isJoinGroupFormOpen, setIsJoinGroupFormOpen] = useState(false);
   const [isCreateGroupFormOpen, setIsCreateGroupFormOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [loginSuccessMessage, setLoginSuccessMessage] = useState("");
+  const navigate = useNavigate();
 
   function toggleTodo(id) {
     setTodos((currentTodos) =>
@@ -143,6 +147,57 @@ function App() {
     );
 
     setCurrentGroupId(null);
+  }
+
+  function handleLogin(user) {
+    setCurrentUserId(user.id);
+
+    const userGroup = groups.find((group) =>
+      group.memberIds.includes(user.id)
+    );
+
+    setCurrentGroupId(userGroup?.id ?? null);
+    setIsLoggedIn(true);
+    navigate("/");
+  }
+
+  function handleRegister({ email, password }) {
+    const newUser = {
+      id: crypto.randomUUID(),
+      email,
+      password,
+      name: email,
+      points: 0,
+      bestCategoryId: null,
+    };
+
+    setUsers((currentUsers) => [...currentUsers, newUser]);
+    setIsRegistering(false);
+    setLoginSuccessMessage("Registrierung erfolgreich. Du kannst dich jetzt anmelden.");
+  }
+
+  if (!isLoggedIn) {
+    if (isRegistering) {
+      return (
+        <RegistrierungFormular
+          users={users}
+          onSubmit={handleRegister}
+          onBack={() => setIsRegistering(false)}
+        />
+      );
+    }
+
+    return (
+      <AnmeldungFormular
+        users={users}
+        onSubmit={handleLogin}
+        onRegister={() => {
+          setLoginSuccessMessage("");
+          setIsRegistering(true);
+        }}
+        successMessage={loginSuccessMessage}
+      />
+    );
   }
 
   return (
