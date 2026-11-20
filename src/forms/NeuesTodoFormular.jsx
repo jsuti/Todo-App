@@ -13,8 +13,6 @@ function NeuesTodoFormular({ onSubmit, onClose, categories }) {
       title: formData.get("title").trim(),
       categoryId: Number(formData.get("categoryId")) || null,
     });
-
-    onClose();
   }
 
   return (

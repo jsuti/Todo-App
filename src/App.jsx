@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -20,13 +20,6 @@ const initialCategories = [
   { id: 4, name: "Lernen", color: "#DFF2FE", textColor: "#0369A1" },
 ];
 
-const initialUsers = [
-  { id: "current-user", email: "justin@example.de", password: "password", name: "Justin", points: 980, bestCategoryId: 4 },
-  { id: "user-1", name: "Leonie", points: 1250, bestCategoryId: 2 },
-  { id: "user-2", name: "Jonas", points: 760, bestCategoryId: 3 },
-  { id: "user-3", name: "Aylin", points: 660, bestCategoryId: 1 },
-];
-
 const initialGroups = [
   {
     id: "dummy-group",
@@ -38,7 +31,7 @@ const initialGroups = [
 function App() {
   const [todos, setTodos] = useState([]);
   const categories = initialCategories;
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState(initialGroups);
   const [currentUserId, setCurrentUserId] = useState(null);
   const currentUser = users.find((user) => user.id === currentUserId);
@@ -54,53 +47,138 @@ function App() {
   const [loginSuccessMessage, setLoginSuccessMessage] = useState("");
   const navigate = useNavigate();
 
-  function toggleTodo(id) {
-    setTodos((currentTodos) =>
-      currentTodos.map((todo) =>
-        todo.id === id
-          ? { ...todo, completed: !todo.completed }
-          : todo
-      )
+  useEffect(() => {
+    fetch("http://localhost:3001/users")
+      .then((response) => {
+        if (!response.ok) throw new Error("Benutzer konnten nicht geladen werden");
+        return response.json();
+      })
+      .then(setUsers)
+      .catch(console.error);
+  }, []);
+
+  async function loadTodos(userId) {
+    const response = await fetch(
+      `http://localhost:3001/users/${userId}/todos`
     );
+
+    if (!response.ok) {
+      throw new Error("To-dos konnten nicht geladen werden");
+    }
+
+    setTodos(await response.json());
   }
 
-  function addTodo({ title, categoryId }) {
-    setTodos((currentTodos) => [
-      ...currentTodos,
+  async function addTodo({ title, categoryId }) {
+    const response = await fetch(
+      `http://localhost:3001/users/${currentUserId}/todos`,
       {
-        id: Date.now(),
-        title,
-        categoryId,
-        completed: false,
-      },
-    ]);
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, categoryId }),
+      }
+    );
 
+    if (!response.ok) {
+      console.error("To-do konnte nicht gespeichert werden:", await response.json());
+      return;
+    }
+
+    const neuesTodo = await response.json();
+    setTodos((bisherigeTodos) => [...bisherigeTodos, neuesTodo]);
     setIsTodoFormOpen(false);
   }
 
-  function updateTodo(updatedTodo) {
-    setTodos((currentTodos) =>
-      currentTodos.map((todo) =>
-        todo.id === updatedTodo.id
-          ? { ...todo, ...updatedTodo }
-          : todo
-      )
-    );
+  async function toggleTodo(id) {
+    try {
+      const response = await fetch(`http://localhost:3001/users/${currentUserId}/todos/${id}`, {
+        method: "PATCH",
+      });
 
-    setEditingTodo(null);
+      if (!response.ok) {
+        throw new Error(`Fehler beim Abhaken: HTTP ${response.status}`);
+      }
+
+      const updatedTodo = await response.json();
+
+      setTodos((currentTodos) =>
+        currentTodos.map((todo) =>
+          todo.id === updatedTodo.id ? updatedTodo : todo
+        )
+      );
+    } catch (error) {
+      console.error("To-do konnte nicht abgehakt werden:", error);
+    }
   }
 
-  function deleteTodo(id) {
-    setTodos((currentTodos) =>
-      currentTodos.filter((todo) => todo.id !== id)
-    );
+  async function updateTodo(updatedTodo) {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/users/${currentUserId}/todos/${updatedTodo.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: updatedTodo.title,
+            categoryId: updatedTodo.categoryId,
+            completed: updatedTodo.completed,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Fehler beim Bearbeiten: HTTP ${response.status}`);
+      }
+
+      const savedTodo = await response.json();
+
+      setTodos((currentTodos) =>
+        currentTodos.map((todo) =>
+          todo.id === savedTodo.id ? savedTodo : todo
+        )
+      );
+      setEditingTodo(null);
+    } catch (error) {
+      console.error("To-do konnte nicht bearbeitet werden:", error);
+    }
   }
 
-  function updateDisplayName(name) {
+  async function deleteTodo(id) {
+    try {
+      const response = await fetch(`http://localhost:3001/users/${currentUserId}/todos/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Fehler beim Löschen: HTTP ${response.status}`);
+      }
+
+      setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
+    } catch (error) {
+      console.error("To-do konnte nicht gelöscht werden:", error);
+    }
+  }
+
+  async function updateDisplayName(name) {
+    const trimmedName = name.trim();
+
+    const response = await fetch(
+      `http://localhost:3001/users/${currentUserId}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmedName }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Anzeigename konnte nicht gespeichert werden.");
+    }
+
     setUsers((currentUsers) =>
-      currentUsers.map((user) =>
-        user.id === currentUserId ? { ...user, name } : user
-      )
+      currentUsers.map((user) => (user.id === data.id ? data : user))
     );
   }
 
@@ -149,38 +227,59 @@ function App() {
     setCurrentGroupId(null);
   }
 
-  function handleLogin(user) {
+  async function handleLogin({ email, password }) {
+    const response = await fetch("http://localhost:3001/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Anmeldung fehlgeschlagen.");
+    }
+
+    const user = data;
+
+    setUsers((currentUsers) => [
+      ...currentUsers.filter((item) => item.id !== user.id),
+      user,
+    ]);
     setCurrentUserId(user.id);
 
-    const userGroup = groups.find((group) =>
-      group.memberIds.includes(user.id)
-    );
-
+    const userGroup = groups.find((group) => group.memberIds.includes(user.id));
     setCurrentGroupId(userGroup?.id ?? null);
+
+    await loadTodos(user.id);
+
     setIsLoggedIn(true);
     navigate("/");
   }
 
-  function handleRegister({ email, password }) {
-    const newUser = {
-      id: crypto.randomUUID(),
-      email,
-      password,
-      name: email,
-      points: 0,
-      bestCategoryId: null,
-    };
+  async function handleRegister({ email, password }) {
+    const response = await fetch("http://localhost:3001/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-    setUsers((currentUsers) => [...currentUsers, newUser]);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Registrierung fehlgeschlagen.");
+    }
+
     setIsRegistering(false);
-    setLoginSuccessMessage("Registrierung erfolgreich. Du kannst dich jetzt anmelden.");
+    setLoginSuccessMessage(
+      "Registrierung erfolgreich. Du kannst dich jetzt anmelden."
+    );
   }
 
   if (!isLoggedIn) {
     if (isRegistering) {
       return (
         <RegistrierungFormular
-          users={users}
           onSubmit={handleRegister}
           onBack={() => setIsRegistering(false)}
         />
@@ -189,7 +288,6 @@ function App() {
 
     return (
       <AnmeldungFormular
-        users={users}
         onSubmit={handleLogin}
         onRegister={() => {
           setLoginSuccessMessage("");

@@ -11,29 +11,25 @@ function RegistrierungFormular({ users, onSubmit, onBack }) {
     if (error) setError("");
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    setError("");
 
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email").trim();
     const password = formData.get("password");
     const passwordConfirmation = formData.get("passwordConfirmation");
 
-    const emailAlreadyExists = users.some(
-      (user) => user.email?.toLowerCase() === email.toLowerCase()
-    );
-
-    if (emailAlreadyExists) {
-      setError("Diese E-Mail-Adresse existiert bereits.");
-      return;
-    }
-
     if (password !== passwordConfirmation) {
       setError("Die Passwörter stimmen nicht überein.");
       return;
     }
 
-    onSubmit({ email, password });
+    try {
+      await onSubmit({ email, password });
+    } catch (submitError) {
+      setError(submitError.message || "Registrierung fehlgeschlagen.");
+    }
   }
 
   return (

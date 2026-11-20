@@ -7,29 +7,19 @@ import FormularMessageBox from "../components/FormularMessagebox/FormularMessage
 function AnmeldungFormular({ users, onSubmit, onRegister, successMessage = "" }) {
   const [error, setError] = useState("");
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    setError("");
 
     const formData = new FormData(event.currentTarget);
     const enteredEmail = formData.get("email").trim().toLowerCase();
     const enteredPassword = formData.get("password");
 
-    const matchingUser = users.find(
-      (user) => user.email?.toLowerCase() === enteredEmail
-    );
-
-    if (!matchingUser) {
-      setError("Diese E-Mail-Adresse existiert nicht.");
-      return;
+    try {
+      await onSubmit({ email: enteredEmail, password: enteredPassword });
+    } catch (submitError) {
+      setError(submitError.message || "Anmeldung fehlgeschlagen.");
     }
-
-    if (matchingUser.password !== enteredPassword) {
-      setError("Das Passwort ist falsch.");
-      return;
-    }
-
-    onSubmit(matchingUser);
-    onClose();
   }
 
   return (
