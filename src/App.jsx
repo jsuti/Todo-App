@@ -20,19 +20,11 @@ const initialCategories = [
   { id: 4, name: "Lernen", color: "#DFF2FE", textColor: "#0369A1" },
 ];
 
-const initialGroups = [
-  {
-    id: "dummy-group",
-    name: "Fokus-Freunde",
-    memberIds: ["user-1", "current-user", "user-2", "user-3"],
-  },
-];
-
 function App() {
   const [todos, setTodos] = useState([]);
   const categories = initialCategories;
   const [users, setUsers] = useState([]);
-  const [groups, setGroups] = useState(initialGroups);
+  const [groups, setGroups] = useState([]);
   const [currentUserId, setCurrentUserId] = useState(null);
   const currentUser = users.find((user) => user.id === currentUserId);
   const [currentGroupId, setCurrentGroupId] = useState(null);
@@ -54,6 +46,16 @@ function App() {
         return response.json();
       })
       .then(setUsers)
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:3001/groups")
+      .then((response) => {
+        if (!response.ok) throw new Error("Gruppen konnten nicht geladen werden");
+        return response.json();
+      })
+      .then(setGroups)
       .catch(console.error);
   }, []);
 
@@ -182,36 +184,59 @@ function App() {
     );
   }
 
-  function joinGroup(groupId) {
+  async function joinGroup(groupId) {
+    const response = await fetch(
+      `http://localhost:3001/groups/${groupId}/members`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: currentUserId }),
+      }
+    );
+
+    const updatedGroup = await response.json();
+
+    if (!response.ok) {
+      throw new Error(updatedGroup.error || "Beitritt zur Gruppe fehlgeschlagen");
+    }
+
     setGroups((currentGroups) =>
       currentGroups.map((group) =>
-        group.id === groupId
-          ? {
-              ...group,
-              memberIds: group.memberIds.includes(currentUserId)
-                ? group.memberIds
-                : [...group.memberIds, currentUserId],
-            }
-          : group
+        group.id === updatedGroup.id ? updatedGroup : group
       )
     );
 
-    setCurrentGroupId(groupId);
+    setCurrentGroupId(updatedGroup.id);
   }
 
-  function createGroup(name) {
-    const newGroup = {
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      memberIds: [currentUserId],
-    };
+  async function createGroup(name) {
+    const response = await fetch("http://localhost:3001/groups", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, userId: currentUserId }),
+    });
+
+    const newGroup = await response.json();
+
+    if (!response.ok) {
+      throw new Error(newGroup.error || "Gruppe konnte nicht erstellt werden");
+    }
 
     setGroups((currentGroups) => [...currentGroups, newGroup]);
     setCurrentGroupId(newGroup.id);
   }
 
-  function leaveGroup() {
+  async function leaveGroup() {
     if (!currentGroupId) return;
+
+    const response = await fetch(
+      `http://localhost:3001/groups/${currentGroupId}/members/${currentUserId}`,
+      { method: "DELETE" }
+    );
+
+    if (!response.ok) {
+      throw new Error("Gruppe konnte nicht verlassen werden");
+    }
 
     setGroups((currentGroups) =>
       currentGroups.map((group) =>

@@ -1,23 +1,14 @@
 import express from "express";
+import cors from "cors";
 
 const app = express();
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-  );
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-
   console.log(`${req.method} ${req.url}`);
   next();
 });
 
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
 const users = [
@@ -53,6 +44,14 @@ let todos = [];
 
 let nextTodoId = 2;
 
+let groups = [
+  {
+    id: "testgruppe",
+    name: "Testgruppe",
+    memberIds: ["dummy-user", "user-1", "user-2", "user-3"],
+  },
+];
+
 function publicUser(user) {
   const { password, ...safeUser } = user;
   return safeUser;
@@ -66,15 +65,6 @@ app.get("/users", (req, res) => {
 // Registrierung
 app.post("/users", (req, res) => {
   const { email, password } = req.body ?? {};
-
-  if (
-    typeof email !== "string" ||
-    !email.trim() ||
-    typeof password !== "string" ||
-    !password.trim()
-  ) {
-    return res.status(400).json({ error: "E-Mail und Passwort sind erforderlich" });
-  }
 
   const existingUser = users.find(
     (user) => user.email?.toLowerCase() === email.trim().toLowerCase()
@@ -130,10 +120,6 @@ app.patch("/users/:id", (req, res) => {
   }
 
   const { name } = req.body ?? {};
-
-  if (typeof name !== "string" || !name.trim()) {
-    return res.status(400).json({ error: "name darf nicht leer sein" });
-  }
 
   user.name = name.trim();
   res.json(publicUser(user));
@@ -232,6 +218,74 @@ app.delete("/users/:userId/todos/:todoId", (req, res) => {
   }
 
   todos.splice(index, 1);
+  res.status(204).send();
+});
+
+// Gruppendaten bekommen
+app.get("/groups", (req, res) => {
+  res.json(groups);
+});
+
+// neue Gruppe erstellen
+app.post("/groups", (req, res) => {
+  const { name, userId } = req.body ?? {};
+
+  if (typeof name !== "string" || !name.trim()) {
+    return res.status(400).json({ error: "Gruppenname darf nicht leer sein" });
+  }
+
+  const user = users.find((item) => item.id === userId);
+
+  if (!user) {
+    return res.status(404).json({ error: "Benutzer nicht gefunden" });
+  }
+
+  const group = {
+    id: crypto.randomUUID(),
+    name: name.trim(),
+    memberIds: [user.id],
+  };
+
+  groups.push(group);
+  res.status(201).json(group);
+});
+
+// Gruppe beitreten
+app.post("/groups/:groupId/members", (req, res) => {
+  const group = groups.find((item) => item.id === req.params.groupId);
+
+  if (!group) {
+    return res.status(404).json({ error: "Gruppe nicht gefunden" });
+  }
+
+  const { userId } = req.body ?? {};
+  const user = users.find((item) => item.id === userId);
+
+  if (!user) {
+    return res.status(404).json({ error: "Benutzer nicht gefunden" });
+  }
+
+  if (!group.memberIds.includes(user.id)) {
+    group.memberIds.push(user.id);
+  }
+
+  res.json(group);
+});
+
+app.delete("/groups/:groupId/members/:userId", (req, res) => {
+  const group = groups.find((item) => item.id === req.params.groupId);
+
+  if (!group) {
+    return res.status(404).json({ error: "Gruppe nicht gefunden" });
+  }
+
+  const user = users.find((item) => item.id === req.params.userId);
+
+  if (!user) {
+    return res.status(404).json({ error: "Benutzer nicht gefunden" });
+  }
+
+  group.memberIds = group.memberIds.filter((id) => id !== user.id);
   res.status(204).send();
 });
 
