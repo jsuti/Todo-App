@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./TodoFormular.css";
+import "./Formular.css";
 import Seitenkopf from "../components/Seitenkopf/Seitenkopf";
 import FormularEingabe from "../components/FormularEingabe/FormularEingabe";
 import FormularMessageBox from "../components/FormularMessagebox/FormularMessageBox";
@@ -7,8 +7,9 @@ import FormularMessageBox from "../components/FormularMessagebox/FormularMessage
 function GruppeBeitretenFormular({ groups, onSubmit, onClose }) {
   const [error, setError] = useState("");
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    setError("");
 
     const formData = new FormData(event.currentTarget);
     const enteredName = formData.get("groupName").trim();
@@ -22,8 +23,12 @@ function GruppeBeitretenFormular({ groups, onSubmit, onClose }) {
       return;
     }
 
-    onSubmit(group.id);
-    onClose();
+    try {
+      await onSubmit(group.id);
+      onClose();
+    } catch (submitError) {
+      setError(submitError.message || "Beitritt zur Gruppe fehlgeschlagen.");
+    }
   }
 
   return (

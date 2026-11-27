@@ -1,10 +1,10 @@
 import { useState } from "react";
-import "./TodoFormular.css";
+import "./Formular.css";
 import Seitenkopf from "../components/Seitenkopf/Seitenkopf";
 import FormularEingabe from "../components/FormularEingabe/FormularEingabe";
 import FormularMessageBox from "../components/FormularMessagebox/FormularMessageBox";
 
-function RegistrierungFormular({ users, onSubmit, onBack }) {
+function RegistrierungFormular({ onSubmit, onBack }) {
   const [error, setError] = useState("");
 
   function clearError() {

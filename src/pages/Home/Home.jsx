@@ -1,6 +1,8 @@
 import "./Home.css";
+import { useState } from "react";
 import TodoItem from "../../components/TodoItem/TodoItem";
 import Seitenkopf from "../../components/Seitenkopf/Seitenkopf";
+import FormularMessagebox from "../../components/FormularMessagebox/FormularMessageBox";
 
 function Home({ displayName, todos, categories, onToggle, onDelete, onAdd, onEdit }) {
 
@@ -25,6 +27,28 @@ function Home({ displayName, todos, categories, onToggle, onDelete, onAdd, onEdi
     day: "numeric",
     month: "long",
   }).format(today);
+
+  const [actionError, setActionError] = useState("");
+
+  async function handleToggle(id) {
+    setActionError("");
+
+    try {
+      await onToggle(id);
+    } catch (error) {
+      setActionError(error.message || "To-do konnte nicht aktualisiert werden.");
+    }
+  }
+
+  async function handleDelete(id) {
+    setActionError("");
+
+    try {
+      await onDelete(id);
+    } catch (error) {
+      setActionError(error.message || "To-do konnte nicht gelöscht werden.");
+    }
+  }
 
   return (
     <div>
@@ -81,6 +105,8 @@ function Home({ displayName, todos, categories, onToggle, onDelete, onAdd, onEdi
 
         <div className="todo-list">
 
+          <FormularMessagebox type="error" message={actionError} />
+
           {todos.map((todo) => {
             const category = categories.find(
               (item) => item.id === todo.categoryId
@@ -91,8 +117,8 @@ function Home({ displayName, todos, categories, onToggle, onDelete, onAdd, onEdi
                 key={todo.id}
                 todo={todo}
                 category={category}
-                onToggle={onToggle}
-                onDelete={onDelete}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
                 onEdit={onEdit}
               />
             );

@@ -3,6 +3,10 @@
   margin: 0 auto;
 }
 
+.settings > .form-messagebox {
+  margin-bottom: 16px;
+}
+
 .settings-card {
   display: flex;
   flex-direction: column;

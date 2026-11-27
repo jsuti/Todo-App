@@ -1,18 +1,27 @@
-import "./TodoFormular.css";
+import "./Formular.css";
+import { useState } from "react";
 import Seitenkopf from "../components/Seitenkopf/Seitenkopf";
 import FormularEingabe from "../components/FormularEingabe/FormularEingabe";
 import KategorienAuswahl from "../components/KategorienAuswahl/KategorienAuswahl";
+import FormularMessagebox from "../components/FormularMessagebox/FormularMessageBox";
 
 function NeuesTodoFormular({ onSubmit, onClose, categories }) {
-  function handleSubmit(event) {
+  const [error, setError] = useState("");
+
+  async function handleSubmit(event) {
     event.preventDefault();
+    setError("");
 
     const formData = new FormData(event.currentTarget);
 
-    onSubmit({
-      title: formData.get("title").trim(),
-      categoryId: Number(formData.get("categoryId")) || null,
-    });
+    try {
+      await onSubmit({
+        title: formData.get("title").trim(),
+        categoryId: Number(formData.get("categoryId")) || null,
+      });
+    } catch (submitError) {
+      setError(submitError.message || "To-do konnte nicht gespeichert werden.");
+    }
   }
 
   return (
@@ -36,6 +45,8 @@ function NeuesTodoFormular({ onSubmit, onClose, categories }) {
           />
 
           <KategorienAuswahl categories={categories} />
+
+          <FormularMessagebox type="error" message={error} />
 
           <div className="todo-form__actions">
             <button type="button" onClick={onClose}>Zurück</button>

@@ -59,20 +59,50 @@ function App() {
       .catch(console.error);
   }, []);
 
+  async function apiRequest(url, options = {}) {
+    let response;
+
+    try {
+      response = await fetch(url, options);
+    } catch {
+      throw new Error(
+        "Der Server ist nicht erreichbar. Bitte versuche es später erneut."
+      );
+    }
+
+    if (response.status === 204) {
+      if (!response.ok) {
+        throw new Error("Die Anfrage ist fehlgeschlagen.");
+      }
+
+      return null;
+    }
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("Der Server hat eine ungültige Antwort gesendet.");
+    }
+
+    if (!response.ok) {
+      throw new Error(data.error || "Die Anfrage ist fehlgeschlagen.");
+    }
+
+    return data;
+  }
+
   async function loadTodos(userId) {
-    const response = await fetch(
+    const data = await apiRequest(
       `http://localhost:3001/users/${userId}/todos`
     );
 
-    if (!response.ok) {
-      throw new Error("To-dos konnten nicht geladen werden");
-    }
-
-    setTodos(await response.json());
+    setTodos(data);
   }
 
   async function addTodo({ title, categoryId }) {
-    const response = await fetch(
+    const newTodo = await apiRequest(
       `http://localhost:3001/users/${currentUserId}/todos`,
       {
         method: "POST",
@@ -81,90 +111,63 @@ function App() {
       }
     );
 
-    if (!response.ok) {
-      console.error("To-do konnte nicht gespeichert werden:", await response.json());
-      return;
-    }
-
-    const neuesTodo = await response.json();
-    setTodos((bisherigeTodos) => [...bisherigeTodos, neuesTodo]);
+    setTodos((currentTodos) => [...currentTodos, newTodo]);
     setIsTodoFormOpen(false);
   }
 
   async function toggleTodo(id) {
-    try {
-      const response = await fetch(`http://localhost:3001/users/${currentUserId}/todos/${id}`, {
-        method: "PATCH",
-      });
+    const updatedTodo = await apiRequest(
+      `http://localhost:3001/users/${currentUserId}/todos/${id}`,
+      { method: "PATCH" }
+    );
 
-      if (!response.ok) {
-        throw new Error(`Fehler beim Abhaken: HTTP ${response.status}`);
-      }
-
-      const updatedTodo = await response.json();
-
-      setTodos((currentTodos) =>
-        currentTodos.map((todo) =>
-          todo.id === updatedTodo.id ? updatedTodo : todo
-        )
-      );
-    } catch (error) {
-      console.error("To-do konnte nicht abgehakt werden:", error);
-    }
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === updatedTodo.id ? updatedTodo : todo
+      )
+    );
   }
 
   async function updateTodo(updatedTodo) {
-    try {
-      const response = await fetch(
-        `http://localhost:3001/users/${currentUserId}/todos/${updatedTodo.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title: updatedTodo.title,
-            categoryId: updatedTodo.categoryId,
-            completed: updatedTodo.completed,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Fehler beim Bearbeiten: HTTP ${response.status}`);
+    const savedTodo = await apiRequest(
+      `http://localhost:3001/users/${currentUserId}/todos/${updatedTodo.id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: updatedTodo.title,
+          categoryId: updatedTodo.categoryId,
+          completed: updatedTodo.completed,
+        }),
       }
+    );
 
-      const savedTodo = await response.json();
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === savedTodo.id ? savedTodo : todo
+      )
+    );
 
-      setTodos((currentTodos) =>
-        currentTodos.map((todo) =>
-          todo.id === savedTodo.id ? savedTodo : todo
-        )
-      );
-      setEditingTodo(null);
-    } catch (error) {
-      console.error("To-do konnte nicht bearbeitet werden:", error);
-    }
+    setEditingTodo(null);
   }
 
   async function deleteTodo(id) {
-    try {
-      const response = await fetch(`http://localhost:3001/users/${currentUserId}/todos/${id}`, {
-        method: "DELETE",
-      });
+    await apiRequest(
+      `http://localhost:3001/users/${currentUserId}/todos/${id}`,
+      { method: "DELETE" }
+    );
 
-      if (!response.ok) {
-        throw new Error(`Fehler beim Löschen: HTTP ${response.status}`);
-      }
-
-      setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
-    } catch (error) {
-      console.error("To-do konnte nicht gelöscht werden:", error);
-    }
+    setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
   }
 
   async function updateDisplayName(name) {
     const trimmedName = name.trim();
 
-    const response = await fetch(
+    if (!trimmedName) {
+      throw new Error("Der Anzeigename darf nicht leer sein.");
+    }
+
+    const updatedUser = await apiRequest(
       `http://localhost:3001/users/${currentUserId}`,
       {
         method: "PATCH",
@@ -173,19 +176,15 @@ function App() {
       }
     );
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Anzeigename konnte nicht gespeichert werden.");
-    }
-
     setUsers((currentUsers) =>
-      currentUsers.map((user) => (user.id === data.id ? data : user))
+      currentUsers.map((user) =>
+        user.id === updatedUser.id ? updatedUser : user
+      )
     );
   }
 
   async function joinGroup(groupId) {
-    const response = await fetch(
+    const updatedGroup = await apiRequest(
       `http://localhost:3001/groups/${groupId}/members`,
       {
         method: "POST",
@@ -193,12 +192,6 @@ function App() {
         body: JSON.stringify({ userId: currentUserId }),
       }
     );
-
-    const updatedGroup = await response.json();
-
-    if (!response.ok) {
-      throw new Error(updatedGroup.error || "Beitritt zur Gruppe fehlgeschlagen");
-    }
 
     setGroups((currentGroups) =>
       currentGroups.map((group) =>
@@ -210,17 +203,11 @@ function App() {
   }
 
   async function createGroup(name) {
-    const response = await fetch("http://localhost:3001/groups", {
+    const newGroup = await apiRequest("http://localhost:3001/groups", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, userId: currentUserId }),
     });
-
-    const newGroup = await response.json();
-
-    if (!response.ok) {
-      throw new Error(newGroup.error || "Gruppe konnte nicht erstellt werden");
-    }
 
     setGroups((currentGroups) => [...currentGroups, newGroup]);
     setCurrentGroupId(newGroup.id);
@@ -229,14 +216,10 @@ function App() {
   async function leaveGroup() {
     if (!currentGroupId) return;
 
-    const response = await fetch(
+    await apiRequest(
       `http://localhost:3001/groups/${currentGroupId}/members/${currentUserId}`,
       { method: "DELETE" }
     );
-
-    if (!response.ok) {
-      throw new Error("Gruppe konnte nicht verlassen werden");
-    }
 
     setGroups((currentGroups) =>
       currentGroups.map((group) =>
@@ -253,12 +236,18 @@ function App() {
   }
 
   async function handleLogin({ email, password }) {
-    const response = await fetch("http://localhost:3001/login", {
+    let response;
+
+    try {
+      response = await fetch("http://localhost:3001/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-
+    } catch {
+      throw new Error("Der Server ist nicht erreichbar. Bitte versuche es später erneut.");
+    }
+    
     const data = await response.json();
 
     if (!response.ok) {
@@ -283,11 +272,17 @@ function App() {
   }
 
   async function handleRegister({ email, password }) {
-    const response = await fetch("http://localhost:3001/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    let response;
+
+    try {
+      response = await fetch("http://localhost:3001/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch {
+      throw new Error("Der Server ist nicht erreichbar. Bitte versuche es später erneut.");
+    }
 
     const data = await response.json();
 
@@ -396,9 +391,8 @@ function App() {
       {isJoinGroupFormOpen && (
         <GruppeBeitretenFormular
           groups={groups.filter((group) => group.id !== currentGroupId)}
-          onSubmit={(groupId) => {
-            joinGroup(groupId);
-            setIsJoinGroupFormOpen(false);
+          onSubmit={async (groupId) => {
+            await joinGroup(groupId);
           }}
           onClose={() => setIsJoinGroupFormOpen(false)}
         />

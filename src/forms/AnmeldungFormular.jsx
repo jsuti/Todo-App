@@ -1,10 +1,10 @@
 import { useState } from "react";
-import "./TodoFormular.css";
+import "./Formular.css";
 import Seitenkopf from "../components/Seitenkopf/Seitenkopf";
 import FormularEingabe from "../components/FormularEingabe/FormularEingabe";
 import FormularMessageBox from "../components/FormularMessagebox/FormularMessageBox";
 
-function AnmeldungFormular({ users, onSubmit, onRegister, successMessage = "" }) {
+function AnmeldungFormular({ onSubmit, onRegister, successMessage = "" }) {
   const [error, setError] = useState("");
 
   async function handleSubmit(event) {

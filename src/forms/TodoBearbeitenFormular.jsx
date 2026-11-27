@@ -1,21 +1,29 @@
-import "./TodoFormular.css";
+import "./Formular.css";
+import { useState } from "react";
 import Seitenkopf from "../components/Seitenkopf/Seitenkopf";
 import FormularEingabe from "../components/FormularEingabe/FormularEingabe";
 import KategorienAuswahl from "../components/KategorienAuswahl/KategorienAuswahl";
+import FormularMessagebox from "../components/FormularMessagebox/FormularMessageBox";
 
 function TodoBearbeitenFormular({ todo, onSubmit, onClose, categories }) {
-  function handleSubmit(event) {
+const [error, setError] = useState("");
+
+  async function handleSubmit(event) {
     event.preventDefault();
+    setError("");
 
     const formData = new FormData(event.currentTarget);
 
-    onSubmit({
-      id: todo.id,
-      title: formData.get("title").trim(),
-      categoryId: Number(formData.get("categoryId")) || null,
-    });
-
-    onClose();
+    try {
+      await onSubmit({
+        id: todo.id,
+        title: formData.get("title").trim(),
+        categoryId: Number(formData.get("categoryId")) || null,
+      });
+      onClose();
+    } catch (submitError) {
+      setError(submitError.message || "To-do konnte nicht bearbeitet werden.");
+    }
   }
 
   return (
@@ -43,6 +51,8 @@ function TodoBearbeitenFormular({ todo, onSubmit, onClose, categories }) {
             categories={categories}
             selectedCategoryId={todo.categoryId}
           />
+
+          <FormularMessagebox type="error" message={error} />
 
           <div className="todo-form__actions">
             <button type="button" onClick={onClose}>Zurück</button>

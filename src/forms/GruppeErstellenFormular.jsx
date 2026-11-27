@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./TodoFormular.css";
+import "./Formular.css";
 import Seitenkopf from "../components/Seitenkopf/Seitenkopf";
 import FormularEingabe from "../components/FormularEingabe/FormularEingabe";
 import FormularMessageBox from "../components/FormularMessagebox/FormularMessageBox";
@@ -7,8 +7,9 @@ import FormularMessageBox from "../components/FormularMessagebox/FormularMessage
 function GruppeErstellenFormular({ groups, onSubmit, onClose }) {
   const [error, setError] = useState("");
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    setError("");
 
     const formData = new FormData(event.currentTarget);
     const enteredName = formData.get("groupName").trim();
@@ -22,8 +23,12 @@ function GruppeErstellenFormular({ groups, onSubmit, onClose }) {
       return;
     }
 
-    onSubmit(enteredName);
-    onClose();
+    try {
+      await onSubmit(enteredName);
+      onClose();
+    } catch (submitError) {
+      setError(submitError.message || "Gruppe konnte nicht erstellt werden.");
+    }
   }
 
   return (

@@ -2,6 +2,7 @@ import { UsersRound, Plus, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import "./Einstellungen.css";
 import Seitenkopf from "../../components/Seitenkopf/Seitenkopf";
+import FormularMessagebox from "../../components/FormularMessagebox/FormularMessageBox";
 
 function Einstellungen({
   hasGroup,
@@ -13,15 +14,49 @@ function Einstellungen({
   onAdd,
 }) {
   const [editedName, setEditedName] = useState(displayName);
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     setEditedName(displayName);
   }, [displayName]);
 
-  function handleSave() {
-    onDisplayNameChange(editedName.trim());
-    setSaved(true);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSave() {
+    setError("");
+    setSaved(false);
+
+    const trimmedName = editedName.trim();
+
+    if (!trimmedName) {
+      setError("Der Anzeigename darf nicht leer sein.");
+      return;
+    }
+
+    try {
+      await onDisplayNameChange(trimmedName);
+      setSaved(true);
+    } catch (submitError) {
+      setError(
+        submitError.message || "Anzeigename konnte nicht gespeichert werden."
+      );
+    }
+  }
+
+  async function handleLeaveGroup() {
+    setError("");
+
+    const confirmed = window.confirm(
+      "Möchtest du diese Gruppe wirklich verlassen?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await onLeaveGroup();
+    } catch (leaveError) {
+      setError(leaveError.message || "Gruppe konnte nicht verlassen werden.");
+    }
   }
 
   return (
@@ -30,6 +65,8 @@ function Einstellungen({
         eyebrowText="Dein Bereich"
         header="Einstellungen"
       />
+
+      <FormularMessagebox type="error" message={error} />
 
       <section className="settings-card">
         <label className="settings-card__label" htmlFor="group-name">
@@ -45,6 +82,7 @@ function Einstellungen({
             onChange={(event) => {
               setEditedName(event.target.value);
               setSaved(false);
+              setError("");
             }}
           />
 
@@ -86,15 +124,7 @@ function Einstellungen({
           <button
             className="settings-option"
             type="button"
-            onClick={() => {
-              const confirmed = window.confirm(
-                "Möchtest du diese Gruppe wirklich verlassen?"
-              );
-
-              if (confirmed) {
-                onLeaveGroup();
-              }
-            }}
+            onClick={handleLeaveGroup}
           >
             <span className="settings-option__icon settings-option__icon--purple">
               <UsersRound size={22} aria-hidden="true" />
